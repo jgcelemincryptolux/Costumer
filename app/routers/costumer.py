@@ -55,4 +55,11 @@ async def get(db: Session = Depends(get_db)):
     """)
     result = db.execute(q)
     names = [{row[0]: row[1]} for row in result]
-    return names
+    data = db.query(models.Costumer).all()
+
+    data = {
+
+        'records' : data,
+        'totalcity':names
+    }
+    return data
