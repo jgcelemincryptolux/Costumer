@@ -8,13 +8,21 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-# configurar la conexion a base de datos
+
+
+# cd app
+alembic init alembic
+
+# configurar la conexion a base de datos costumer
 en database.py
 en alambic.ini
 
 
-# cd app
+alembic revision --autogenerate -m "migrate tables"
 alembic upgrade head
 
-# run 
+
+
+
+# run
 uvicorn main:app --reload
