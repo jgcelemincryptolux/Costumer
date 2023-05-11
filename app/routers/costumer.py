@@ -28,15 +28,31 @@ router = APIRouter(
         401: {"description": "Unauthorized"},
     },
 )
-
+def get_records(db: Session = Depends(get_db)):
+    q = text("""
+        SELECT
+            city, count(city) AS count
+        FROM client
+        GROUP BY city
+    """)
+    result = db.execute(q)
+    names = dict()
+    for row in result:
+        names[row[0]] = row[1]
+    yield names
 
 @router.post("/add")
-async def createCostumer(costumer:Costumer,  db: Session = Depends(get_db)):
+async def createCostumer(costumer:Costumer,  db: Session = Depends(get_db), get_city= Depends(get_records)):
     acc = models.Costumer(**costumer.dict())
     old = date.today() - costumer.birthdate
     old = int(old.days / 365)
+
+    records_by_city = get_city.get(costumer.city, 0)
     if old <18:
         return{"error": f"no valido tiene que ser mayor de 18 : {old}"}
+
+    if records_by_city > 2:
+        return {"error": f"hay el maximo de registros  {records_by_city}  para : {costumer.city}"}
 
     db.add(acc)
     db.commit()
@@ -54,7 +70,7 @@ async def get(db: Session = Depends(get_db)):
     GROUP BY city
     """)
     result = db.execute(q)
-    names = [{row[0]: row[1]} for row in result]
+    names = get_records(db)
     data = db.query(models.Costumer).all()
 
     data = {
