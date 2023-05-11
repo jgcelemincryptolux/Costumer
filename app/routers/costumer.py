@@ -1,6 +1,7 @@
 from fastapi import APIRouter, status, Depends, FastAPI, HTTPException
 from sql.schemas.costumer import Costumer
 from sqlalchemy.orm import Session
+from datetime import date
 
 from sql import models
 from sql.database import SessionLocal, engine
@@ -19,8 +20,8 @@ def get_db():
 
 
 router = APIRouter(
-    prefix="/user",
-    tags=["user"],
+    prefix="/costumer",
+    tags=["costumer"],
     responses={
         404: {"description": "Not found"},
         401: {"description": "Unauthorized"},
@@ -29,15 +30,19 @@ router = APIRouter(
 
 
 @router.post("/add")
-async def createCostumer(costumer:Costumer,  db: Session = Depends(get_db))->Costumer:
-    acc = models.User(**costumer.dict())
+async def createCostumer(costumer:Costumer,  db: Session = Depends(get_db)):
+    acc = models.Costumer(**costumer.dict())
+    old = date.today() - costumer.birthdate
+    old = int(old.days / 365)
+    if old <18:
+        return{"error": f"no valido tiene que ser mayor de 18 : {old}"}
     db.add(acc)
     db.commit()
-    db.refresh(acc)
+    # db.refresh(acc)
     return {**costumer.dict()}
 
 
 
-@router.get("/getcostumer", status_code=status.HTTP_200_OK)
+@router.get("/listcostumers", status_code=status.HTTP_200_OK)
 async def get(db: Session = Depends(get_db))->Costumer:
     return db.query(models.User).all()
