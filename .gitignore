@@ -1,4 +1,3 @@
 /venv
 /app/alembic/*
 *.pyc
-alembic.ini
