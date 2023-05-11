@@ -1,6 +1,7 @@
 from fastapi import APIRouter, status, Depends, FastAPI, HTTPException
 from sql.schemas.costumer import Costumer
 from sqlalchemy.orm import Session
+from sqlalchemy import func, select, label, text
 from datetime import date
 
 from sql import models
@@ -46,4 +47,12 @@ async def createCostumer(costumer:Costumer,  db: Session = Depends(get_db)):
 
 @router.get("/listcostumers", status_code=status.HTTP_200_OK)
 async def get(db: Session = Depends(get_db)):
-    return db.query(models.Costumer).all()
+    q = text("""
+    SELECT
+        city, count(city) AS count
+    FROM client
+    GROUP BY city
+    """)
+    result = db.execute(q)
+    names = [{row[0]: row[1]} for row in result]
+    return names
