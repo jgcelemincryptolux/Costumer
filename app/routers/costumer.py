@@ -36,6 +36,7 @@ async def createCostumer(costumer:Costumer,  db: Session = Depends(get_db)):
     old = int(old.days / 365)
     if old <18:
         return{"error": f"no valido tiene que ser mayor de 18 : {old}"}
+
     db.add(acc)
     db.commit()
     # db.refresh(acc)
@@ -44,5 +45,5 @@ async def createCostumer(costumer:Costumer,  db: Session = Depends(get_db)):
 
 
 @router.get("/listcostumers", status_code=status.HTTP_200_OK)
-async def get(db: Session = Depends(get_db))->Costumer:
-    return db.query(models.User).all()
+async def get(db: Session = Depends(get_db)):
+    return db.query(models.Costumer).all()
