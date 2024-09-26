@@ -23,3 +23,5 @@ alembic upgrade head
 
 # run
 uvicorn main:app --reload
+
+una vez ejecutado se puede probar con /docs
